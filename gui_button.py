@@ -5,7 +5,7 @@ import constants
 class GUIButton:
     def __init__(self, text, pos, text_color="black", bg="white", outline="black"):
         self.text = text
-        self.x, self.y = pos[0], pos[1]
+        self.x, self.y = pos
         self.bg = bg
         self.outline = outline
         self.text_color = text_color
