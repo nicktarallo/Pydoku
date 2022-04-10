@@ -84,16 +84,10 @@ class Board:
         for pos in posns:
             valid = True
             val = b.get_val(pos)
-            b_copy1 = copy.deepcopy(b)
-            b_copy2 = copy.deepcopy(b)
-            b_copy1.set_val(None, pos)
+            b_copy = copy.deepcopy(b)
+            b_copy.set_val(None, pos)
             try:
-                b_copy1.solve()
-            except ValueError:
-                valid = False
-            b_copy2.set_val(None, pos)
-            try:
-                b_copy2.solve(restrict_val=val, restrict_pos=pos)
+                b_copy.solve(restrict_val=val, restrict_pos=pos)
                 valid = False
             except ValueError:
                 pass
