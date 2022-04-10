@@ -1,6 +1,7 @@
 from entry import Entry
 from position import Position
 import random
+import copy
 
 
 class Board:
@@ -11,7 +12,7 @@ class Board:
         self._boxes = [[set() for x in range(3)] for _ in range(3)]
 
     def set_val(self, val, pos):
-        if self.entry_is_valid(val):
+        if Entry.value_is_valid(val):
             if val is None:
                 self.remove_val(self.get_val(pos), pos)
             elif 1 <= val <= 9:
@@ -33,25 +34,27 @@ class Board:
         self.get_col(pos).add(val)
         self.get_box(pos).add(val)
 
-    def solve(self, rand=False):
-        solved = self._solve(Position(0, 0), rand)
+    def solve(self, rand=False, restrict_val=None, restrict_pos=None):
+        solved = self._solve(Position(0, 0), rand, restrict_val, restrict_pos)
         if not solved:
             raise ValueError("Given board is not solvable")
 
-    def _solve(self, pos, rand=False):
+    def _solve(self, pos, rand=False, restrict_val=None, restrict_pos=None):
         if pos.get_row() == 9:
             solved = True
         elif self.get_val(pos) is not None:
-            solved = self._solve(pos.next(), rand)
+            solved = self._solve(pos.next(), rand, restrict_val, restrict_pos)
         else:
             vals = list(range(1, 10))
             solved = False
             if rand:
                 random.shuffle(vals)
+            if pos == restrict_pos:
+                vals.remove(restrict_val)
             for val in vals:
-                if self.entry_is_valid(val) and self.entry_non_conflicting(val, pos):
+                if Entry.value_is_valid(val) and self.entry_non_conflicting(val, pos):
                     self.set_val(val, pos)
-                    solved = self._solve(pos.next(), rand)
+                    solved = self._solve(pos.next(), rand, restrict_val, restrict_pos)
                     if solved:
                         break
                     self.remove_val(val, pos)
@@ -71,18 +74,48 @@ class Board:
     def get_val(self, pos):
         return self._matrix[pos.get_row()][pos.get_col()].get_val()
 
-    @staticmethod
-    def entry_is_valid(val):
-        return val is None or 1 <= val <= 9
-
     def entry_non_conflicting(self, val, pos):
         return (val not in self.get_row(pos)) and (val not in self.get_col(pos)) and (val not in self.get_box(pos))
+
+    @staticmethod
+    def generate_board():
+        b = Board.get_solved_board()
+        posns = Position.get_all_positions()
+        for pos in posns:
+            valid = True
+            val = b.get_val(pos)
+            b_copy1 = copy.deepcopy(b)
+            b_copy2 = copy.deepcopy(b)
+            b_copy1.set_val(None, pos)
+            try:
+                b_copy1.solve()
+            except ValueError:
+                valid = False
+            b_copy2.set_val(None, pos)
+            try:
+                b_copy2.solve(restrict_val=val, restrict_pos=pos)
+                valid = False
+            except ValueError:
+                pass
+            if valid:
+                b.set_val(None, pos)
+        return b
+
+    @staticmethod
+    def get_solved_board():
+        b = Board()
+        b.solve(True)
+        return b
 
     def __str__(self):
         s = ""
         for i in range(len(self._matrix)):
             for j in range(len(self._matrix[i])):
-                s += str(self._matrix[i][j]) + " "
+                if self._matrix[i][j].get_val() is None:
+                    val = 0
+                else:
+                    val = str(self._matrix[i][j])
+                s += str(val) + " "
                 if j == 2 or j == 5:
                     s += "| "
             s += "\n"

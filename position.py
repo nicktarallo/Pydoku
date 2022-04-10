@@ -1,3 +1,6 @@
+import random
+
+
 class Position:
     def __init__(self, row, col):
         self._row = row
@@ -23,3 +26,21 @@ class Position:
             new_col = self._col + 1
             new_row = self._row
         return Position(new_row, new_col)
+
+    def __eq__(self, other):
+        if other is None:
+            return False
+        if not isinstance(other, Position):
+            raise TypeError("Position can only compared to another Position")
+        return self._row == other._row and self._col == other._col
+
+    @staticmethod
+    def get_all_positions():
+        posns = []
+        for i in range(9):
+            for j in range(9):
+                posns.append(Position(i, j))
+
+        random.shuffle(posns)
+        return posns
+

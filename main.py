@@ -1,8 +1,8 @@
 from board import Board
 from position import Position
 
-b = Board()
-
-
-b.solve(True)
+b = Board.generate_board()
+print(b)
+print()
+b.solve()
 print(b)
