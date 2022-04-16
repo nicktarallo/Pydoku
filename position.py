@@ -34,6 +34,9 @@ class Position:
             raise TypeError("Position can only compared to another Position")
         return self._row == other._row and self._col == other._col
 
+    def __str__(self):
+        return "(" + str(self.get_row()) + ", " + str(self.get_col()) + ")"
+
     @staticmethod
     def get_all_positions():
         posns = []

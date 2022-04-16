@@ -35,9 +35,29 @@ class Board:
         self.get_box(pos).add(val)
 
     def solve(self, rand=False, restrict_val=None, restrict_pos=None):
+        #if not rand:
+        #    self.solve_simple(restrict_val, restrict_pos)
         solved = self._solve(Position(0, 0), rand, restrict_val, restrict_pos)
         if not solved:
             raise ValueError("Given board is not solvable")
+
+    def solve_simple(self, restrict_val=None, restrict_pos=None):
+        working = True
+        while working:
+            working = False
+            for i in range(9):
+                for j in range(9):
+                    pos = Position(i, j)
+                    if self.get_val(pos) is not None:
+                        continue
+                    intersect = self.get_box(pos) & self.get_col(pos) & self.get_row(pos)
+                    if len(intersect) == 8:
+                        val = ({1, 2, 3, 4, 5, 6, 7, 8, 9} - intersect).pop()
+                        if pos == restrict_pos:
+                            if restrict_val == val:
+                                continue
+                        working = True
+                        self.set_val(val, pos)
 
     def _solve(self, pos, rand=False, restrict_val=None, restrict_pos=None):
         if pos.get_row() == 9:
@@ -116,6 +136,15 @@ class Board:
             if i == 2 or i == 5:
                 s += "-" * 21 + "\n"
         return s
+
+    def copy(self):
+        new_board = Board()
+        for i in range(len(self._matrix)):
+            for j in range(len(self._matrix[0])):
+                pos = Position(i, j)
+                new_board.set_val(self.get_val(pos), pos)
+        return new_board
+
 
 
 
