@@ -27,6 +27,30 @@ class Position:
             new_row = self._row
         return Position(new_row, new_col)
 
+    def up(self):
+        new_row = self._row
+        if self._row > 0:
+            new_row = self._row - 1
+        return Position(new_row, self._col)
+
+    def down(self):
+        new_row = self._row
+        if self._row < 8:
+            new_row = self._row + 1
+        return Position(new_row, self._col)
+
+    def left(self):
+        new_col = self._col
+        if self._col > 0:
+            new_col = self._col - 1
+        return Position(self._row, new_col)
+
+    def right(self):
+        new_col = self._col
+        if self._col < 8:
+            new_col = self._col + 1
+        return Position(self._row, new_col)
+
     def __eq__(self, other):
         if other is None:
             return False

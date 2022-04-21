@@ -12,13 +12,15 @@ class Board:
         self._boxes = [[set() for x in range(3)] for _ in range(3)]
 
     def set_val(self, val, pos):
-        if Entry.value_is_valid(val):
+        if Entry.value_is_valid(val) and self.entry_non_conflicting(val, pos):
             if val is None:
                 self.remove_val(self.get_val(pos), pos)
             elif 1 <= val <= 9:
+                if self.get_val(pos):
+                    self.remove_val(self.get_val(pos), pos)
                 self.add_val(val, pos)
         else:
-            raise ValueError("Not a valid value (None or 1-9)")
+            raise ValueError("Not a valid value (None or 1-9) or Value already exists in column, row, or box")
         self._matrix[pos.get_row()][pos.get_col()].set_val(val)
 
     def remove_val(self, val, pos):
@@ -35,11 +37,42 @@ class Board:
         self.get_box(pos).add(val)
 
     def solve(self, rand=False, restrict_val=None, restrict_pos=None):
-        #if not rand:
-        #    self.solve_simple(restrict_val, restrict_pos)
+        if not rand:
+            self.solve_simple(restrict_val, restrict_pos)
         solved = self._solve(Position(0, 0), rand, restrict_val, restrict_pos)
         if not solved:
             raise ValueError("Given board is not solvable")
+
+    def solve2(self, pos=Position(0, 0), rand=False, restrict_val=None, restrict_pos=None):
+        if not rand:
+            self.solve_simple(restrict_val, restrict_pos)
+        solved = self._solve2(pos, rand, restrict_val, restrict_pos)
+        return solved
+        #if not solved:
+        #    raise ValueError("Given board is not solvable")
+
+    def _solve2(self, pos, rand=False, restrict_val=None, restrict_pos=None):
+        if pos.get_row() == 9:
+            solved = True
+        elif self.get_val(pos) is not None:
+            solved = self.solve2(pos.next(), rand, restrict_val, restrict_pos)
+        else:
+            vals = list(range(1, 10))
+            solved = False
+            if rand:
+                random.shuffle(vals)
+            if pos == restrict_pos:
+                vals.remove(restrict_val)
+            for val in vals:
+                if Entry.value_is_valid(val) and self.entry_non_conflicting(val, pos):
+                    self.set_val(val, pos)
+                    solved = self._solve(pos.next(), rand, restrict_val, restrict_pos)
+                    if solved:
+                        break
+                    self.remove_val(val, pos)
+            if not solved:
+                self.set_val(None, pos)
+        return solved
 
     def solve_simple(self, restrict_val=None, restrict_pos=None):
         working = True
@@ -50,9 +83,9 @@ class Board:
                     pos = Position(i, j)
                     if self.get_val(pos) is not None:
                         continue
-                    intersect = self.get_box(pos) & self.get_col(pos) & self.get_row(pos)
-                    if len(intersect) == 8:
-                        val = ({1, 2, 3, 4, 5, 6, 7, 8, 9} - intersect).pop()
+                    union = self.get_box(pos) | self.get_col(pos) | self.get_row(pos)
+                    if len(union) == 8:
+                        val = ({1, 2, 3, 4, 5, 6, 7, 8, 9} - union).pop()
                         if pos == restrict_pos:
                             if restrict_val == val:
                                 continue
@@ -107,8 +140,8 @@ class Board:
             b_copy = copy.deepcopy(b)
             b_copy.set_val(None, pos)
             try:
-                b_copy.solve(restrict_val=val, restrict_pos=pos)
-                valid = False
+                valid = not b_copy.solve2(restrict_val=val, restrict_pos=pos)
+                # valid = False
             except ValueError:
                 pass
             if valid:
