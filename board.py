@@ -91,6 +91,9 @@ class Board:
                                 continue
                         working = True
                         self.set_val(val, pos)
+            working = self.check_rows(restrict_val, restrict_pos) or working
+            working = self.check_cols(restrict_val, restrict_pos) or working
+            working = self.check_boxes(restrict_val, restrict_pos) or working
 
     def _solve(self, pos, rand=False, restrict_val=None, restrict_pos=None):
         if pos.get_row() == 9:
@@ -140,8 +143,10 @@ class Board:
             b_copy = copy.deepcopy(b)
             b_copy.set_val(None, pos)
             try:
-                valid = not b_copy.solve2(restrict_val=val, restrict_pos=pos)
+                # valid = not b_copy.solve2(restrict_val=val, restrict_pos=pos)
                 # valid = False
+                b_copy.solve(restrict_val=val, restrict_pos=pos)
+                valid = False
             except ValueError:
                 pass
             if valid:
@@ -177,6 +182,67 @@ class Board:
                 pos = Position(i, j)
                 new_board.set_val(self.get_val(pos), pos)
         return new_board
+
+    def check_rows(self, restrict_val=None, restrict_pos=None):
+        made_change = False
+        for i in range(len(self._rows)):
+            missing_vals = set(range(1, 10)) - self._rows[i]
+            for val in missing_vals:
+                possible_positions = []
+                for j in range(9):
+                    pos = Position(i, j)
+                    if restrict_pos == pos:
+                        if restrict_val == val:
+                            continue
+                    if self.get_val(pos) is None:
+                        if self.entry_non_conflicting(val, pos):
+                            possible_positions.append(pos)
+                if len(possible_positions) == 1:
+                    self.set_val(val, possible_positions.pop())
+                    made_change = True
+        return made_change
+
+    def check_cols(self, restrict_val=None, restrict_pos=None):
+        made_change = False
+        for i in range(len(self._cols)):
+            missing_vals = set(range(1, 10)) - self._cols[i]
+            for val in missing_vals:
+                possible_positions = []
+                for j in range(9):
+                    pos = Position(j, i)
+                    if restrict_pos == pos:
+                        if restrict_val == val:
+                            continue
+                    if self.get_val(pos) is None:
+                        if self.entry_non_conflicting(val, pos):
+                            possible_positions.append(pos)
+                if len(possible_positions) == 1:
+                    self.set_val(val, possible_positions.pop())
+                    made_change = True
+        return made_change
+
+    def check_boxes(self, restrict_val=None, restrict_pos=None):
+        made_change = False
+        for i in range(3):
+            for j in range(3):
+                missing_vals = set(range(1, 10)) - self._boxes[i][j]
+                for val in missing_vals:
+                    possible_positions = []
+                    for r in range(i * 3, (i + 1) * 3):
+                        for c in range(j * 3, (j + 1) * 3):
+                            pos = Position(r, c)
+                            if restrict_pos == pos:
+                                if restrict_val == val:
+                                    continue
+                            if self.get_val(pos) is None:
+                                if self.entry_non_conflicting(val, pos):
+                                    possible_positions.append(pos)
+                    if len(possible_positions) == 1:
+                        self.set_val(val, possible_positions.pop())
+                        made_change = True
+        return made_change
+
+
 
 
 

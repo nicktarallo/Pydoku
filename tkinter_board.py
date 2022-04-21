@@ -29,8 +29,8 @@ class TkinterBoard(tk.Canvas):
     def render_pointer(self):
         self.delete(constants.POINTER_TAG)
         if self.pointer:
-            x = self.pointer.get_col() * constants.BOARD_WIDTH // 9
-            y = self.pointer.get_row() * constants.BOARD_HEIGHT // 9
+            x = self.pointer.get_col() * constants.BOARD_WIDTH // 9 - self.pointer.get_col() // 2
+            y = self.pointer.get_row() * constants.BOARD_HEIGHT // 9 - self.pointer.get_row() // 2
             self.create_rectangle(x, y, x + constants.BOARD_WIDTH // 9, y + constants.BOARD_HEIGHT // 9,
                                   fill='yellow', tag=constants.POINTER_TAG)
 

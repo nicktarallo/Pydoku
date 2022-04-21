@@ -16,5 +16,5 @@ for i in range(9):
         if matrix[i][j] != 0:
             b.set_val(matrix[i][j], Position(i, j))
 
-b.solve()
+b.solve_simple()
 print(b)

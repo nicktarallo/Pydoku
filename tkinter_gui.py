@@ -44,7 +44,6 @@ def generate_solution_command():
 
 def key_handler(event):
     if gs == GameState.EnterBoard:
-        print(event.keysym)
         if event.char in {'1', '2', '3', '4', '5', '6', '7', '8', '9'}:
             try:
                 gui_board.set_pointer_val(int(event.char))
