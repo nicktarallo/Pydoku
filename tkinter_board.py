@@ -68,3 +68,11 @@ class TkinterBoard(tk.Canvas):
         if key == 'Right':
             self.pointer = self.pointer.right()
 
+    def remove_pointer(self):
+        self.pointer = None
+        self.render_pointer()
+
+    def add_pointer(self):
+        self.pointer = Position(0, 0)
+
+

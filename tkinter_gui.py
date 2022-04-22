@@ -9,7 +9,7 @@ from game_state import GameState
 
 def generate_command():
     global gs
-    gs = GameState.Generate
+    gs = GameState.DisplayBoard
     solve_button.pack_forget()
     generate_button.pack_forget()
     gui_board.generate_random_board()
@@ -25,7 +25,7 @@ def solve_command():
     solve_button.pack_forget()
     generate_button.pack_forget()
     gui_board.reset_board()
-    gui_board.pointer = Position(0, 0)
+    gui_board.add_pointer()
     gui_board.render_pointer()
     gui_board.render_values()
     gui_board.pack()
@@ -39,7 +39,7 @@ def generate_solution_command():
         gui_board.solve_board()
         gs = GameState.DisplayBoard
         generate_solution_button.pack_forget()
-        gui_board.pointer = None
+        gui_board.remove_pointer()
         gui_board.render_pointer()
         gui_board.render_values()
     except ValueError:
@@ -52,6 +52,7 @@ def main_menu_command():
     gui_board.pack_forget()
     main_menu_button.pack_forget()
     generate_solution_button.pack_forget()
+    gui_board.remove_pointer()
     solve_button.pack()
     generate_button.pack()
 

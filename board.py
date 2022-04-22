@@ -5,7 +5,10 @@ import copy
 
 
 class Board:
+    """Represents a sudoku board"""
+
     def __init__(self):
+        """Creates a Board object with a matrix to hold each entry and also arrays to store the rows, cols, and boxes"""
         self._matrix = [[Entry() for x in range(9)] for _ in range(9)]
         self._rows = [set() for _ in range(9)]
         self._cols = [set() for _ in range(9)]
@@ -42,37 +45,6 @@ class Board:
         solved = self._solve(Position(0, 0), rand, restrict_val, restrict_pos)
         if not solved:
             raise ValueError("Given board is not solvable")
-
-    def solve2(self, pos=Position(0, 0), rand=False, restrict_val=None, restrict_pos=None):
-        if not rand:
-            self.solve_simple(restrict_val, restrict_pos)
-        solved = self._solve2(pos, rand, restrict_val, restrict_pos)
-        return solved
-        #if not solved:
-        #    raise ValueError("Given board is not solvable")
-
-    def _solve2(self, pos, rand=False, restrict_val=None, restrict_pos=None):
-        if pos.get_row() == 9:
-            solved = True
-        elif self.get_val(pos) is not None:
-            solved = self.solve2(pos.next(), rand, restrict_val, restrict_pos)
-        else:
-            vals = list(range(1, 10))
-            solved = False
-            if rand:
-                random.shuffle(vals)
-            if pos == restrict_pos:
-                vals.remove(restrict_val)
-            for val in vals:
-                if Entry.value_is_valid(val) and self.entry_non_conflicting(val, pos):
-                    self.set_val(val, pos)
-                    solved = self._solve(pos.next(), rand, restrict_val, restrict_pos)
-                    if solved:
-                        break
-                    self.remove_val(val, pos)
-            if not solved:
-                self.set_val(None, pos)
-        return solved
 
     def solve_simple(self, restrict_val=None, restrict_pos=None):
         working = True
@@ -117,6 +89,65 @@ class Board:
             if not solved:
                 self.set_val(None, pos)
         return solved
+
+    def check_rows(self, restrict_val=None, restrict_pos=None):
+        made_change = False
+        for i in range(len(self._rows)):
+            missing_vals = set(range(1, 10)) - self._rows[i]
+            for val in missing_vals:
+                possible_positions = []
+                for j in range(9):
+                    pos = Position(i, j)
+                    if restrict_pos == pos:
+                        if restrict_val == val:
+                            continue
+                    if self.get_val(pos) is None:
+                        if self.entry_non_conflicting(val, pos):
+                            possible_positions.append(pos)
+                if len(possible_positions) == 1:
+                    self.set_val(val, possible_positions.pop())
+                    made_change = True
+        return made_change
+
+    def check_cols(self, restrict_val=None, restrict_pos=None):
+        made_change = False
+        for i in range(len(self._cols)):
+            missing_vals = set(range(1, 10)) - self._cols[i]
+            for val in missing_vals:
+                possible_positions = []
+                for j in range(9):
+                    pos = Position(j, i)
+                    if restrict_pos == pos:
+                        if restrict_val == val:
+                            continue
+                    if self.get_val(pos) is None:
+                        if self.entry_non_conflicting(val, pos):
+                            possible_positions.append(pos)
+                if len(possible_positions) == 1:
+                    self.set_val(val, possible_positions.pop())
+                    made_change = True
+        return made_change
+
+    def check_boxes(self, restrict_val=None, restrict_pos=None):
+        made_change = False
+        for i in range(3):
+            for j in range(3):
+                missing_vals = set(range(1, 10)) - self._boxes[i][j]
+                for val in missing_vals:
+                    possible_positions = []
+                    for r in range(i * 3, (i + 1) * 3):
+                        for c in range(j * 3, (j + 1) * 3):
+                            pos = Position(r, c)
+                            if restrict_pos == pos:
+                                if restrict_val == val:
+                                    continue
+                            if self.get_val(pos) is None:
+                                if self.entry_non_conflicting(val, pos):
+                                    possible_positions.append(pos)
+                    if len(possible_positions) == 1:
+                        self.set_val(val, possible_positions.pop())
+                        made_change = True
+        return made_change
 
     def get_row(self, pos):
         return self._rows[pos.get_row()]
@@ -183,68 +214,33 @@ class Board:
                 new_board.set_val(self.get_val(pos), pos)
         return new_board
 
-    def check_rows(self, restrict_val=None, restrict_pos=None):
-        made_change = False
-        for i in range(len(self._rows)):
-            missing_vals = set(range(1, 10)) - self._rows[i]
-            for val in missing_vals:
-                possible_positions = []
-                for j in range(9):
-                    pos = Position(i, j)
-                    if restrict_pos == pos:
-                        if restrict_val == val:
-                            continue
-                    if self.get_val(pos) is None:
-                        if self.entry_non_conflicting(val, pos):
-                            possible_positions.append(pos)
-                if len(possible_positions) == 1:
-                    self.set_val(val, possible_positions.pop())
-                    made_change = True
-        return made_change
+    def solve2(self, pos=Position(0, 0), rand=False, restrict_val=None, restrict_pos=None):
+        if not rand:
+            self.solve_simple(restrict_val, restrict_pos)
+        solved = self._solve2(pos, rand, restrict_val, restrict_pos)
+        return solved
+        #if not solved:
+        #    raise ValueError("Given board is not solvable")
 
-    def check_cols(self, restrict_val=None, restrict_pos=None):
-        made_change = False
-        for i in range(len(self._cols)):
-            missing_vals = set(range(1, 10)) - self._cols[i]
-            for val in missing_vals:
-                possible_positions = []
-                for j in range(9):
-                    pos = Position(j, i)
-                    if restrict_pos == pos:
-                        if restrict_val == val:
-                            continue
-                    if self.get_val(pos) is None:
-                        if self.entry_non_conflicting(val, pos):
-                            possible_positions.append(pos)
-                if len(possible_positions) == 1:
-                    self.set_val(val, possible_positions.pop())
-                    made_change = True
-        return made_change
-
-    def check_boxes(self, restrict_val=None, restrict_pos=None):
-        made_change = False
-        for i in range(3):
-            for j in range(3):
-                missing_vals = set(range(1, 10)) - self._boxes[i][j]
-                for val in missing_vals:
-                    possible_positions = []
-                    for r in range(i * 3, (i + 1) * 3):
-                        for c in range(j * 3, (j + 1) * 3):
-                            pos = Position(r, c)
-                            if restrict_pos == pos:
-                                if restrict_val == val:
-                                    continue
-                            if self.get_val(pos) is None:
-                                if self.entry_non_conflicting(val, pos):
-                                    possible_positions.append(pos)
-                    if len(possible_positions) == 1:
-                        self.set_val(val, possible_positions.pop())
-                        made_change = True
-        return made_change
-
-
-
-
-
-
-
+    def _solve2(self, pos, rand=False, restrict_val=None, restrict_pos=None):
+        if pos.get_row() == 9:
+            solved = True
+        elif self.get_val(pos) is not None:
+            solved = self.solve2(pos.next(), rand, restrict_val, restrict_pos)
+        else:
+            vals = list(range(1, 10))
+            solved = False
+            if rand:
+                random.shuffle(vals)
+            if pos == restrict_pos:
+                vals.remove(restrict_val)
+            for val in vals:
+                if Entry.value_is_valid(val) and self.entry_non_conflicting(val, pos):
+                    self.set_val(val, pos)
+                    solved = self._solve(pos.next(), rand, restrict_val, restrict_pos)
+                    if solved:
+                        break
+                    self.remove_val(val, pos)
+            if not solved:
+                self.set_val(None, pos)
+        return solved
