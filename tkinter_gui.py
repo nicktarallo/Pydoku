@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import messagebox
 import constants
 from tkinter_board import TkinterBoard
 from board import Board
@@ -14,6 +15,8 @@ def generate_command():
     gui_board.generate_random_board()
     gui_board.render_values()
     gui_board.pack()
+    generate_solution_button.pack()
+    main_menu_button.pack()
 
 
 def solve_command():
@@ -27,6 +30,7 @@ def solve_command():
     gui_board.render_values()
     gui_board.pack()
     generate_solution_button.pack()
+    main_menu_button.pack()
 
 
 def generate_solution_command():
@@ -39,7 +43,17 @@ def generate_solution_command():
         gui_board.render_pointer()
         gui_board.render_values()
     except ValueError:
-        print("Given board is not solvable")
+        messagebox.showerror("ERROR", "Given board is not solvable.\nCheck board and try again.")
+
+
+def main_menu_command():
+    global gs
+    gs = GameState.Menu
+    gui_board.pack_forget()
+    main_menu_button.pack_forget()
+    generate_solution_button.pack_forget()
+    solve_button.pack()
+    generate_button.pack()
 
 
 def key_handler(event):
@@ -62,11 +76,13 @@ def key_handler(event):
 
 
 top = tk.Tk()
+top.wm_title("Pydoku!")
 gs = GameState.Menu
 
 solve_button = tk.Button(top, text="SOLVE", command=solve_command)
 generate_button = tk.Button(top, text="GENERATE", command=generate_command)
 generate_solution_button = tk.Button(top, text="GENERATE SOLUTION", command=generate_solution_command)
+main_menu_button = tk.Button(top, text="MAIN MENU", command=main_menu_command)
 # canvas = tk.Canvas(top, bg="white", height=constants.BOARD_HEIGHT, width=constants.BOARD_WIDTH)
 gui_board = TkinterBoard(top, Board(), None, bg="white",
                          height=constants.BOARD_HEIGHT, width=constants.BOARD_WIDTH)
