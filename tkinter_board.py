@@ -2,6 +2,7 @@ import tkinter as tk
 from position import Position
 import constants
 from board import Board
+from copy import deepcopy
 
 
 class TkinterBoard(tk.Canvas):

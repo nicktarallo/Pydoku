@@ -15,6 +15,12 @@ class Board:
         self._boxes = [[set() for x in range(3)] for _ in range(3)]
 
     def set_val(self, val, pos):
+        """
+        Set the value on the board at the given position or raise error if it is not possible
+        :param val: None or Integer: The value to set the given cell to
+        :param pos: Position: The position on the board to set
+        :return: None
+        """
         if Entry.value_is_valid(val) and self.entry_non_conflicting(val, pos):
             if val is None:
                 self.remove_val(self.get_val(pos), pos)
@@ -27,6 +33,12 @@ class Board:
         self._matrix[pos.get_row()][pos.get_col()].set_val(val)
 
     def remove_val(self, val, pos):
+        """
+        Remove the value from the the corresponding row, column, and box set
+        :param val: Integer or None: The value to remove
+        :param pos: Position: The position of the cell where the value is being removed
+        :return: None
+        """
         if val in self.get_row(pos):
             self.get_row(pos).remove(val)
         if val in self.get_col(pos):
@@ -35,11 +47,24 @@ class Board:
             self.get_box(pos).remove(val)
 
     def add_val(self, val, pos):
+        """
+        Add a value to the corresponding row, column, and box
+        :param val: Integer: The value to be added to the row, col, and box sets
+        :param pos: Position: The position on the board where the value is being added
+        :return: None
+        """
         self.get_row(pos).add(val)
         self.get_col(pos).add(val)
         self.get_box(pos).add(val)
 
     def solve(self, rand=False, restrict_val=None, restrict_pos=None):
+        """
+        Attempt to solve the board from the current state
+        :param rand: Boolean: Should the values be shuffled for each iteration before placing them to add randomness?
+        :param restrict_val: None or Integer: If there is a value that should be restricted, what is it?
+        :param restrict_pos: None or Position: If there is a position that should be restricted, what is it?
+        :return: None
+        """
         if not rand:
             self.solve_simple(restrict_val, restrict_pos)
         solved = self._solve(Position(0, 0), rand, restrict_val, restrict_pos)
@@ -47,6 +72,12 @@ class Board:
             raise ValueError("Given board is not solvable")
 
     def solve_simple(self, restrict_val=None, restrict_pos=None):
+        """
+        Find and fill in clearly solvable values on the board before moving to recursive solution that is slower
+        :param restrict_val: None or Integer: If there is a value that should be restricted, what is it?
+        :param restrict_pos: None or Position: If there is a position that should be restricted, what is it?
+        :return: None
+        """
         working = True
         while working:
             working = False
@@ -68,6 +99,14 @@ class Board:
             working = self.check_boxes(restrict_val, restrict_pos) or working
 
     def _solve(self, pos, rand=False, restrict_val=None, restrict_pos=None):
+        """
+        Attempt to solve the board from the given state using the recursive backtracking algorithm
+        :param pos: Position: The current position to test different values with
+        :param rand: Boolean: Should the values be shuffled for each iteration before placing them to add randomness?
+        :param restrict_val: None or Integer: If there is a value that should be restricted, what is it?
+        :param restrict_pos: None or Position: If there is a position that should be restricted, what is it?
+        :return: Boolean: Is the board solved?
+        """
         if pos.get_row() == 9:
             solved = True
         elif self.get_val(pos) is not None:
@@ -91,6 +130,12 @@ class Board:
         return solved
 
     def check_rows(self, restrict_val=None, restrict_pos=None):
+        """
+        Check each row to see if there are any cells where only 1 value could fit and add them if so
+        :param restrict_val: None or Integer: If there is a value that should be restricted, what is it?
+        :param restrict_pos: None or Position: If there is a position that should be restricted, what is it?
+        :return: Boolean: Were any changes made to the board?
+        """
         made_change = False
         for i in range(len(self._rows)):
             missing_vals = set(range(1, 10)) - self._rows[i]
@@ -110,6 +155,12 @@ class Board:
         return made_change
 
     def check_cols(self, restrict_val=None, restrict_pos=None):
+        """
+        Check each column to see if there are any cells where only 1 value could fit and add them if so
+        :param restrict_val: None or Integer: If there is a value that should be restricted, what is it?
+        :param restrict_pos: None or Position: If there is a position that should be restricted, what is it?
+        :return: Boolean: Were any changes made to the board?
+        """
         made_change = False
         for i in range(len(self._cols)):
             missing_vals = set(range(1, 10)) - self._cols[i]
@@ -129,6 +180,12 @@ class Board:
         return made_change
 
     def check_boxes(self, restrict_val=None, restrict_pos=None):
+        """
+        Check each box to see if there are any cells where only 1 value could fit and add them if so
+        :param restrict_val: None or Integer: If there is a value that should be restricted, what is it?
+        :param restrict_pos: None or Position: If there is a position that should be restricted, what is it?
+        :return: Boolean: Were any changes made to the board?
+        """
         made_change = False
         for i in range(3):
             for j in range(3):
@@ -150,22 +207,52 @@ class Board:
         return made_change
 
     def get_row(self, pos):
+        """
+        Get the row set corresponding to the given position
+        :param pos: Position: The position of the cell that the row is being found for
+        :return: Set of Integer: The set of values for the respective row of the position
+        """
         return self._rows[pos.get_row()]
 
     def get_col(self, pos):
+        """
+        Get the column set corresponding to the given position
+        :param pos: Position: The position of the cell that the column is being found for
+        :return: Set of Integer: The set of values for the respective column of the position
+        """
         return self._cols[pos.get_col()]
 
     def get_box(self, pos):
+        """
+        Get the box set corresponding to the given position
+        :param pos: Position: The position of the cell that the box is being found for
+        :return: Set of Integer: The set of values for the respective box of the position
+        """
         return self._boxes[pos.get_row() // 3][pos.get_col() // 3]
 
     def get_val(self, pos):
+        """
+        Get the value of the entry at the given position on the board
+        :param pos: Position: The position to get the value from
+        :return: None or Integer: The value of the entry at the given position
+        """
         return self._matrix[pos.get_row()][pos.get_col()].get_val()
 
     def entry_non_conflicting(self, val, pos):
+        """
+        Check if the given value is already in the respective box, row, or column of that position
+        :param val: Integer: The value that is being checked
+        :param pos: Position: The position to get the row, column, and box from
+        :return: Boolean: Does the given value NOT conflict with any other values in the row, col, or box?
+        """
         return (val not in self.get_row(pos)) and (val not in self.get_col(pos)) and (val not in self.get_box(pos))
 
     @staticmethod
     def generate_board():
+        """
+        Generate an unsolved sudoku board with one unique solution
+        :return: Board: An unsolved sudoku board with one unique solution
+        """
         b = Board.get_solved_board()
         posns = Position.get_all_positions()
         for pos in posns:
@@ -186,11 +273,19 @@ class Board:
 
     @staticmethod
     def get_solved_board():
+        """
+        Generate a random, fully solved sudoku board
+        :return: Board: A solved sudoku board
+        """
         b = Board()
         b.solve(True)
         return b
 
     def __str__(self):
+        """
+        Convert the board to a string
+        :return: String: The board in string form
+        """
         s = ""
         for i in range(len(self._matrix)):
             for j in range(len(self._matrix[i])):
@@ -205,42 +300,3 @@ class Board:
             if i == 2 or i == 5:
                 s += "-" * 21 + "\n"
         return s
-
-    def copy(self):
-        new_board = Board()
-        for i in range(len(self._matrix)):
-            for j in range(len(self._matrix[0])):
-                pos = Position(i, j)
-                new_board.set_val(self.get_val(pos), pos)
-        return new_board
-
-    def solve2(self, pos=Position(0, 0), rand=False, restrict_val=None, restrict_pos=None):
-        if not rand:
-            self.solve_simple(restrict_val, restrict_pos)
-        solved = self._solve2(pos, rand, restrict_val, restrict_pos)
-        return solved
-        #if not solved:
-        #    raise ValueError("Given board is not solvable")
-
-    def _solve2(self, pos, rand=False, restrict_val=None, restrict_pos=None):
-        if pos.get_row() == 9:
-            solved = True
-        elif self.get_val(pos) is not None:
-            solved = self.solve2(pos.next(), rand, restrict_val, restrict_pos)
-        else:
-            vals = list(range(1, 10))
-            solved = False
-            if rand:
-                random.shuffle(vals)
-            if pos == restrict_pos:
-                vals.remove(restrict_val)
-            for val in vals:
-                if Entry.value_is_valid(val) and self.entry_non_conflicting(val, pos):
-                    self.set_val(val, pos)
-                    solved = self._solve(pos.next(), rand, restrict_val, restrict_pos)
-                    if solved:
-                        break
-                    self.remove_val(val, pos)
-            if not solved:
-                self.set_val(None, pos)
-        return solved

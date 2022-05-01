@@ -1,5 +1,5 @@
-SCREEN_WIDTH = 1000
-SCREEN_HEIGHT = 500
+# Constants to use in code:
+
 BOARD_WIDTH = 500
 BOARD_HEIGHT = 500
 VALUE_TAG = "value"
