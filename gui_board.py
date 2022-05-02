@@ -16,8 +16,8 @@ class GUIBoard(tk.Canvas):
         :param kwargs: Additional tk.Canvas arguments
         """
         super().__init__(master, **kwargs)  # Call the tk.Canvas constructor with its necessary arguments
-        self.board = board  # Set the board
-        self.pointer = pointer  # Set the pointer
+        self._board = board  # Set the board
+        self._pointer = pointer  # Set the pointer
 
     def render_empty_board(self):
         """
@@ -51,10 +51,10 @@ class GUIBoard(tk.Canvas):
         # Remove current pointer from canvas
         self.delete(constants.POINTER_TAG)
         # If there is a pointer:
-        if self.pointer:
+        if self._pointer:
             # Calculate position to place rectangle
-            x = self.pointer.get_col() * constants.BOARD_WIDTH // 9 - self.pointer.get_col() // 2
-            y = self.pointer.get_row() * constants.BOARD_HEIGHT // 9 - self.pointer.get_row() // 2
+            x = self._pointer.get_col() * constants.BOARD_WIDTH // 9 - self._pointer.get_col() // 2
+            y = self._pointer.get_row() * constants.BOARD_HEIGHT // 9 - self._pointer.get_row() // 2
             # Place rectangle at correct position:
             self.create_rectangle(x, y, x + constants.BOARD_WIDTH // 9, y + constants.BOARD_HEIGHT // 9,
                                   fill='yellow', tag=constants.POINTER_TAG)
@@ -70,7 +70,7 @@ class GUIBoard(tk.Canvas):
         for i in range(9):
             x = constants.BOARD_WIDTH // 18
             for j in range(9):
-                val = self.board.get_val(Position(i, j))  # Get the value for that position
+                val = self._board.get_val(Position(i, j))  # Get the value for that position
                 # If the value is not None, render it on the Canvas
                 if val:
                     self.create_text(x, y, text=str(val), fill="black", font="Arial 35", tag=constants.VALUE_TAG)
@@ -83,21 +83,22 @@ class GUIBoard(tk.Canvas):
         :param max_remove: Integer: The maximum amount of numbers to remove from the board
         :return: None
         """
-        self.board = Board.generate_board(max_remove)  # Set the board attribute to the generated board
+        self._board = Board.generate_board(max_remove=max_remove)  # Set the board attribute to the generated board
 
     def solve_board(self):
         """
         Attempt to solve the board associated with the board attribute
         :return: None
         """
-        self.board.solve()  # Solve the board stored in the board attribute
+        # Solve the board stored in the board attribute and revert if it can't be solved:
+        self._board.solve(revert_if_unsolvable=True)
 
     def reset_board(self):
         """
         Reset the board associated with the board attribute to have no values
         :return: None
         """
-        self.board = Board()  # Set board to new Board object
+        self._board = Board()  # Set board to new Board object
 
     def set_pointer_val(self, val):
         """
@@ -105,7 +106,7 @@ class GUIBoard(tk.Canvas):
         :param val: Integer or None: The value to set the entry to
         :return: None
         """
-        self.board.set_val(val, self.pointer)  # Set the value of the board at pointer
+        self._board.set_val(val, self._pointer)  # Set the value of the board at pointer
 
     def move_pointer(self, key):
         """
@@ -115,20 +116,20 @@ class GUIBoard(tk.Canvas):
         """
         # Cases for each arrow key that call the Position method to determine the new location of the pointer:
         if key == 'Up':
-            self.pointer = self.pointer.up()
+            self._pointer = self._pointer.up()
         if key == 'Down':
-            self.pointer = self.pointer.down()
+            self._pointer = self._pointer.down()
         if key == 'Left':
-            self.pointer = self.pointer.left()
+            self._pointer = self._pointer.left()
         if key == 'Right':
-            self.pointer = self.pointer.right()
+            self._pointer = self._pointer.right()
 
     def remove_pointer(self):
         """
         Set the pointer to none and re-render the pointer
         :return: None
         """
-        self.pointer = None  # Set pointer to none
+        self._pointer = None  # Set pointer to none
         self.render_pointer()  # Rerender pointer to remove it
 
     def add_pointer(self):
@@ -136,4 +137,4 @@ class GUIBoard(tk.Canvas):
         Add a pointer to the board at position (0, 0)
         :return: None
         """
-        self.pointer = Position(0, 0)  # Set the pointer to Position(0, 0), the top-left corner
+        self._pointer = Position(0, 0)  # Set the pointer to Position(0, 0), the top-left corner

@@ -65,20 +65,29 @@ class Board:
         self.get_col(pos).add(val)  # Add to column set
         self.get_box(pos).add(val)  # Add to box set
 
-    def solve(self, rand=False, restrict_val=None, restrict_pos=None):
+    def solve(self, rand=False, restrict_val=None, restrict_pos=None, revert_if_unsolvable=False):
         """
         Attempt to solve the board from the current state
         :param rand: Boolean: Should the values be shuffled for each iteration before placing them to add randomness?
         :param restrict_val: None or Integer: If there is a value that should be restricted, what is it?
         :param restrict_pos: None or Position: If there is a position that should be restricted, what is it?
+        :param revert_if_unsolvable: Boolean: Should the board be forced to revert to its initial state if it is
+        found to be unsolvable?
         :return: None
         """
+        if revert_if_unsolvable:
+            # Make a copy to revert to if necessary
+            board_copy = copy.deepcopy(self)
         if not rand:
             # Try to solve obvious values without backtracking first (if shuffling is not required):
             self._solve_simple(restrict_val, restrict_pos)
         # Attempt to finish solving using the backtracking algorithm:
         solved = self._solve_backtracking(Position(0, 0), rand, restrict_val, restrict_pos)
         if not solved:
+            if revert_if_unsolvable:
+                # If the board can't be solved and it needs to be reverted, alter the object of self to hold the values
+                # of board_copy:
+                self.__dict__.update(board_copy.__dict__)
             # Raise error if board is unsolvable
             raise ValueError("Given board is not solvable")
 
