@@ -3,7 +3,6 @@ from tkinter import messagebox
 import constants
 from tkinter_board import TkinterBoard
 from board import Board
-from position import Position
 from game_state import GameState
 
 
@@ -95,4 +94,3 @@ solve_button.pack()
 generate_button.pack()
 
 top.mainloop()
-
