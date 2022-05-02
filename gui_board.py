@@ -137,5 +137,3 @@ class GUIBoard(tk.Canvas):
         :return: None
         """
         self.pointer = Position(0, 0)  # Set the pointer to Position(0, 0), the top-left corner
-
-
