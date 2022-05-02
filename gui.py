@@ -103,11 +103,19 @@ class GUI:
             self.gui_board.pack()
 
     def pack_generate_buttons(self):
+        """
+        Easy way to pack all three generate buttons (1 for each difficulty)
+        :return: None
+        """
         self.generate_easy_button.pack()
         self.generate_medium_button.pack()
         self.generate_hard_button.pack()
 
     def pack_forget_generate_buttons(self):
+        """
+        Easy way to hide all three generate buttons (1 for each difficulty)
+        :return: None
+        """
         self.generate_easy_button.pack_forget()
         self.generate_medium_button.pack_forget()
         self.generate_hard_button.pack_forget()
