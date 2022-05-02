@@ -5,12 +5,12 @@ from board import Board
 from copy import deepcopy
 
 
-class TkinterBoard(tk.Canvas):
+class GUIBoard(tk.Canvas):
     """Represents a tkinter canvas with specialized methods to draw a board"""
 
     def __init__(self, master, board, pointer, **kwargs):
         """
-        Initialize a TkinterBoard object
+        Initialize a GUIBoard object
         :param master: Tk: The window to put the Canvas on
         :param board: Board: A board object to represent the current board to be drawn
         :param pointer: Position or None: Point on the board to be highlighted yellow to enter numbers
