@@ -68,12 +68,12 @@ class GUIBoard(tk.Canvas):
                 x += constants.BOARD_WIDTH // 9
             y += constants.BOARD_HEIGHT // 9
 
-    def generate_random_board(self):
+    def generate_random_board(self, max_remove=81):
         """
         Set the board attribute to be a randomly generated board
         :return: None
         """
-        self.board = Board.generate_board()
+        self.board = Board.generate_board(max_remove)
 
     def solve_board(self):
         """

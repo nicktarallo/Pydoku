@@ -14,19 +14,21 @@ class GUI:
         self.gs = None
         self.gui_board = None
         self.solve_button = None
-        self.generate_button = None
+        self.generate_easy_button = None
+        self.generate_medium_button = None
+        self.generate_hard_button = None
         self.generate_solution_button = None
         self.main_menu_button = None
 
-    def generate_command(self):
+    def generate_command(self, max_remove=81):
         """
         Command that runs when the generate button is pressed
         :return: None
         """
         self.gs = GameState.DisplayBoard
         self.solve_button.pack_forget()
-        self.generate_button.pack_forget()
-        self.gui_board.generate_random_board()
+        self.pack_forget_generate_buttons()
+        self.gui_board.generate_random_board(max_remove)
         self.gui_board.render_values()
         self.gui_board.pack()
         self.generate_solution_button.pack()
@@ -39,7 +41,7 @@ class GUI:
         """
         self.gs = GameState.EnterBoard
         self.solve_button.pack_forget()
-        self.generate_button.pack_forget()
+        self.pack_forget_generate_buttons()
         self.gui_board.reset_board()
         self.gui_board.add_pointer()
         self.gui_board.render_pointer()
@@ -74,7 +76,7 @@ class GUI:
         self.generate_solution_button.pack_forget()
         self.gui_board.remove_pointer()
         self.solve_button.pack()
-        self.generate_button.pack()
+        self.pack_generate_buttons()
 
     def key_handler(self, event):
         """
@@ -99,6 +101,16 @@ class GUI:
             self.gui_board.render_values()
             self.gui_board.pack()
 
+    def pack_generate_buttons(self):
+        self.generate_easy_button.pack()
+        self.generate_medium_button.pack()
+        self.generate_hard_button.pack()
+
+    def pack_forget_generate_buttons(self):
+        self.generate_easy_button.pack_forget()
+        self.generate_medium_button.pack_forget()
+        self.generate_hard_button.pack_forget()
+
     def run(self):
         """
         Run the GUI application
@@ -109,7 +121,12 @@ class GUI:
         self.gs = GameState.Menu
 
         self.solve_button = tk.Button(top, text="SOLVE", command=self.solve_command)
-        self.generate_button = tk.Button(top, text="GENERATE", command=self.generate_command)
+        self.generate_easy_button = tk.Button(top, text="GENERATE EASY",
+                                              command=lambda: self.generate_command(constants.EASY_REMOVE))
+        self.generate_medium_button = tk.Button(top, text="GENERATE MEDIUM",
+                                                command=lambda: self.generate_command(constants.MEDIUM_REMOVE))
+        self.generate_hard_button = tk.Button(top, text="GENERATE HARD",
+                                              command=lambda: self.generate_command(constants.HARD_REMOVE))
         self.generate_solution_button = tk.Button(top, text="GENERATE SOLUTION", command=self.generate_solution_command)
         self.main_menu_button = tk.Button(top, text="MAIN MENU", command=self.main_menu_command)
         self.gui_board = GUIBoard(top, Board(), None, bg="white",
@@ -118,6 +135,6 @@ class GUI:
         self.gui_board.render_empty_board()
 
         self.solve_button.pack()
-        self.generate_button.pack()
+        self.pack_generate_buttons()
 
         top.mainloop()

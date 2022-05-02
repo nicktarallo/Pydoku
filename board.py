@@ -78,25 +78,13 @@ class Board:
         :param restrict_pos: None or Position: If there is a position that should be restricted, what is it?
         :return: None
         """
-        working = True
-        while working:
-            working = False
-            for i in range(9):
-                for j in range(9):
-                    pos = Position(i, j)
-                    if self.get_val(pos) is not None:
-                        continue
-                    union = self.get_box(pos) | self.get_col(pos) | self.get_row(pos)
-                    if len(union) == 8:
-                        val = ({1, 2, 3, 4, 5, 6, 7, 8, 9} - union).pop()
-                        if pos == restrict_pos:
-                            if restrict_val == val:
-                                continue
-                        working = True
-                        self.set_val(val, pos)
-            working = self.check_rows(restrict_val, restrict_pos) or working
-            working = self.check_cols(restrict_val, restrict_pos) or working
-            working = self.check_boxes(restrict_val, restrict_pos) or working
+        made_change = True
+        while made_change:
+            made_change = False
+            made_change = self.check_ind_cells(restrict_val, restrict_pos) or made_change
+            made_change = self.check_rows(restrict_val, restrict_pos) or made_change
+            made_change = self.check_cols(restrict_val, restrict_pos) or made_change
+            made_change = self.check_boxes(restrict_val, restrict_pos) or made_change
 
     def _solve(self, pos, rand=False, restrict_val=None, restrict_pos=None):
         """
@@ -128,6 +116,30 @@ class Board:
             if not solved:
                 self.set_val(None, pos)
         return solved
+
+    def check_ind_cells(self, restrict_val=None, restrict_pos=None):
+        """
+        Check each cell to see if there is only one possible value that could fit in that cell based on what is
+        already in its row, col, and box
+        :param restrict_val: None or Integer: If there is a value that should be restricted, what is it?
+        :param restrict_pos: None or Position: If there is a position that should be restricted, what is it?
+        :return: Boolean: Were any changes made to the board?
+        """
+        made_change = False
+        for i in range(9):
+            for j in range(9):
+                pos = Position(i, j)
+                if self.get_val(pos) is not None:
+                    continue
+                union = self.get_box(pos) | self.get_col(pos) | self.get_row(pos)
+                if len(union) == 8:
+                    val = ({1, 2, 3, 4, 5, 6, 7, 8, 9} - union).pop()
+                    if pos == restrict_pos:
+                        if restrict_val == val:
+                            continue
+                    made_change = True
+                    self.set_val(val, pos)
+        return made_change
 
     def check_rows(self, restrict_val=None, restrict_pos=None):
         """
@@ -248,27 +260,28 @@ class Board:
         return (val not in self.get_row(pos)) and (val not in self.get_col(pos)) and (val not in self.get_box(pos))
 
     @staticmethod
-    def generate_board():
+    def generate_board(max_remove=81):
         """
         Generate an unsolved sudoku board with one unique solution
         :return: Board: An unsolved sudoku board with one unique solution
         """
         b = Board.get_solved_board()
         posns = Position.get_all_positions()
-        for pos in posns:
+        removed = 0
+        while posns and removed < max_remove:
+            pos = posns.pop()
             valid = True
             val = b.get_val(pos)
             b_copy = copy.deepcopy(b)
             b_copy.set_val(None, pos)
             try:
-                # valid = not b_copy.solve2(restrict_val=val, restrict_pos=pos)
-                # valid = False
                 b_copy.solve(restrict_val=val, restrict_pos=pos)
                 valid = False
             except ValueError:
                 pass
             if valid:
                 b.set_val(None, pos)
+                removed += 1
         return b
 
     @staticmethod
