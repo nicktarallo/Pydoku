@@ -30,7 +30,7 @@ class GUIApplication:
         top = tk.Tk()
         top.wm_title("Pydoku!")
 
-        self._gs = GUIState.Menu  # Set initial GUIState
+        self._gs = GUIState.MENU  # Set initial GUIState
 
         # BUTTON CREATION
         # Button to enter solve mode:
@@ -71,7 +71,7 @@ class GUIApplication:
         :return: None
         """
         # Set gs to the display state:
-        self._gs = GUIState.DisplayBoard
+        self._gs = GUIState.DISPLAY_BOARD
         # Hide unnecessary buttons:
         self._solve_button.pack_forget()
         self._pack_forget_generate_buttons()
@@ -89,7 +89,7 @@ class GUIApplication:
         :return: None
         """
         # Set gs to the enter state:
-        self._gs = GUIState.EnterBoard
+        self._gs = GUIState.ENTER_BOARD
         # Hide unnecessary buttons:
         self._solve_button.pack_forget()
         self._pack_forget_generate_buttons()
@@ -113,7 +113,7 @@ class GUIApplication:
             # Attempt to solve board:
             self._gui_board.solve_board()
             # Set gs to display state:
-            self._gs = GUIState.DisplayBoard
+            self._gs = GUIState.DISPLAY_BOARD
             # Hide unnecessary button:
             self._generate_solution_button.pack_forget()
             # Remove the pointer and render the values:
@@ -130,7 +130,7 @@ class GUIApplication:
         :return: None
         """
         # Set gs to the menu state:
-        self._gs = GUIState.Menu
+        self._gs = GUIState.MENU
         # Hide unnecessary buttons:
         self._gui_board.pack_forget()
         self._main_menu_button.pack_forget()
@@ -148,7 +148,7 @@ class GUIApplication:
         :return: None
         """
         # Only handle keys if the the state allows user to enter a board
-        if self._gs == GUIState.EnterBoard:
+        if self._gs == GUIState.ENTER_BOARD:
             # If the user tries to set a number:
             if event.char in {'1', '2', '3', '4', '5', '6', '7', '8', '9'}:
                 # Try to set the value at the position of the pointer to the value of the key pressed
