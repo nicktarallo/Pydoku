@@ -263,6 +263,7 @@ class Board:
     def generate_board(max_remove=81):
         """
         Generate an unsolved sudoku board with one unique solution
+        :param max_remove: Integer: The maximum amount of numbers to remove from the board
         :return: Board: An unsolved sudoku board with one unique solution
         """
         b = Board.get_solved_board()

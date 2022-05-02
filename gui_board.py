@@ -71,6 +71,7 @@ class GUIBoard(tk.Canvas):
     def generate_random_board(self, max_remove=81):
         """
         Set the board attribute to be a randomly generated board
+        :param max_remove: Integer: The maximum amount of numbers to remove from the board
         :return: None
         """
         self.board = Board.generate_board(max_remove)

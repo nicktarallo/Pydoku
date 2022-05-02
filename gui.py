@@ -23,6 +23,7 @@ class GUI:
     def generate_command(self, max_remove=81):
         """
         Command that runs when the generate button is pressed
+        :param max_remove: Integer: The maximum amount of numbers to remove from the board
         :return: None
         """
         self.gs = GameState.DisplayBoard
