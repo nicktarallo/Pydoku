@@ -103,6 +103,21 @@ class Position:
             new_col = self._col + 1
         return Position(self._row, new_col)  # Return new Position object
 
+    @staticmethod
+    def get_all_positions():
+        """
+        Get a shuffled list of all possible positions on a 9x9 sudoku board
+        :return: List of Positions: List of all possible positions on the board in random order
+        """
+        posns = []  # Create empty list to hold Position objects
+        # Add each possible position on a Sudoku board to the list:
+        for i in range(9):
+            for j in range(9):
+                posns.append(Position(i, j))
+        # Shuffle to randomize and return list:
+        random.shuffle(posns)
+        return posns
+
     def __eq__(self, other):
         """
         Check if two positions, self and other, are equal to each other
@@ -125,18 +140,3 @@ class Position:
         """
         # Convert to form "(row, col)" and return
         return "(" + str(self.get_row()) + ", " + str(self.get_col()) + ")"
-
-    @staticmethod
-    def get_all_positions():
-        """
-        Get a shuffled list of all possible positions on a 9x9 sudoku board
-        :return: List of Positions: List of all possible positions on the board in random order
-        """
-        posns = []  # Create empty list to hold Position objects
-        # Add each possible position on a Sudoku board to the list:
-        for i in range(9):
-            for j in range(9):
-                posns.append(Position(i, j))
-        # Shuffle to randomize and return list:
-        random.shuffle(posns)
-        return posns

@@ -45,7 +45,8 @@ class GUIApplication:
         self._generate_hard_button = tk.Button(top, text="GENERATE HARD",
                                                command=lambda: self._generate_command(constants.HARD_REMOVE))
         # Button to generate a solution of the board on screen:
-        self._generate_solution_button = tk.Button(top, text="GENERATE SOLUTION", command=self._generate_solution_command)
+        self._generate_solution_button = tk.Button(top, text="GENERATE SOLUTION",
+                                                   command=self._generate_solution_command)
         # Button to return to main menu
         self._main_menu_button = tk.Button(top, text="MAIN MENU", command=self._main_menu_command)
 
